@@ -3,7 +3,8 @@ class Board
 
   def initialize(name1, name2)
       @cups = Array.new(14){ Array.new(place_stones) }
-      
+      @name1 = name1 
+      @name2 = name2 
   end
 
   def place_stones
