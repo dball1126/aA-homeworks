@@ -4,6 +4,8 @@ require 'singleton'
 class PlayDBConnection < SQLite3::Database
   include Singleton
 
+ 
+
   def initialize
     super('plays.db')
     self.type_translation = true
@@ -13,6 +15,37 @@ end
 
 class Play
   attr_accessor :id, :title, :year, :playwright_id
+
+   def self.find_by_title(title)
+          play = PlayDBConnection.instance.execute(<<-SQL, title)
+
+          SELECT
+            *
+          FROM
+            plays
+          WHERE
+            title = ?
+        SQL
+
+        return nil unless play.length > 0
+
+    Play.new(play.first) # play is stored in an array!
+   end
+  def self.find_by_playwright(name)
+        playwright = Playwright.find_by_name(name)
+    raise "#{name} not found in DB" unless playwright
+
+    plays = PlayDBConnection.instance.execute(<<-SQL, playwright.id)
+      SELECT
+        *
+      FROM
+        plays
+      WHERE
+        playwright_id = ?
+    SQL
+
+    plays.map { |play| Play.new(play) }
+  end
 
   def self.all
     data = PlayDBConnection.instance.execute("SELECT * FROM plays")
@@ -49,3 +82,31 @@ class Play
     SQL
   end
 end
+
+
+def PlayWright
+
+  attr_accessor :id, :title, :year
+
+  def self.all
+    data = PlayDBConnection.instance.execute("SELECT * From playwrights")
+    data.map{ |input| PlayWright.new(input) }
+  end
+
+  def self.find_by_name()
+  end
+
+  def initialize(options)
+      @id = options['id']
+      @title = options['title']
+      @year = options['year']
+  end
+end
+
+  Playwright::all
+Playwright::find_by_name(name)
+Playwright#new (this is the initialize method)
+Playwright#create
+Playwright#update
+Playwright#get_plays (returns all plays written by playwright)
+Remember, our PlayDBConnection class accesses the database stored in plays.db, which includes both the plays and playwrights tables.
